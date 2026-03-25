@@ -1,0 +1,68 @@
+module tb_r_ra;
+  // Inputs
+  reg clk;
+  reg rst;
+  reg [3:0] req;
+  // Outputs
+  wire [3:0] grant;
+
+  // Instantiate the module
+  r_ra uut (
+    .clk(clk),
+    .rst(rst),
+    .req(req),
+    .grant(grant)
+  );
+
+  // Generate clock signal with 10 ns period
+  always #5 clk = ~clk;
+ initial begin
+    // Initialize inputs
+    clk = 0;
+    rst = 1;
+    req = 4'b0000;
+    // Apply reset
+    #10;
+    rst = 0;
+    // Test case 1: Request on req[1]
+    #10;
+    req = 4'b0001;  // Set req[1] high, expecting grant = 4'b0001
+    #10;
+    req = 4'b0000;  // Clear request
+    // Test case 2: Request on req[2]
+    #10;
+    req = 4'b0010;  // Set req[2] high, expecting grant = 4'b0010
+    #10;
+    req = 4'b0000;  // Clear request
+    // Test case 3: Request on req[3]
+    #10;
+    req = 4'b0100;  // Set req[3] high, expecting grant = 4'b0100
+    #10;
+    req = 4'b0000;  // Clear request
+    // Test case 4: Request on req[4]
+    #10;
+    req = 4'b1000;  // Set req[4] high, expecting grant = 4'b1000
+    #10;
+    req = 4'b0000;  // Clear request
+    // Test case 5: Multiple requests, starting with req[1]
+    #10;
+    req = 4'b1010;  // Set multiple requests (req[1] and req[3]), expecting grant = 4'b0001
+    #10;
+    req = 4'b0100;  // Clear req[1], expecting grant to change to 4'b0100
+    #10;
+    req = 4'b0000;  // Clear all requests
+  // Reset the system to check reset behavior
+    #10;
+    rst = 1;         // Assert reset
+    #10;
+    rst = 0;         // Deassert reset
+    req = 4'b0000;
+    // Finish simulation
+    #10;
+    $finish;
+  end
+  // Display results
+  initial begin
+    $monitor("Time=%0d clk=%b rst=%b req=%b grant=%b", $time, clk, rst, req, grant);
+  end
+endmodule
