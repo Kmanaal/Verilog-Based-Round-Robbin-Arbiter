@@ -1,0 +1,101 @@
+module r_ra(clk,rst,req,grant);
+output reg [3:0] grant;
+input  clk;
+input  rst;
+input [3:0]  req;
+reg [2:0]  state;
+reg [2:0]  next_state;
+parameter [2:0] S_idle=3'b000; //idle state or reset state
+parameter [2:0] S1=3'b001;
+parameter [2:0] S2=3'b010;
+parameter [2:0] S3=3'b011;
+parameter [2:0] S4=3'b100;
+always @(posedge clk or posedge rst)
+     begin
+      if(rst)
+       state=S_idle;
+      else
+       state=next_state;
+     end
+always @(state or req)
+    begin
+     case (state)
+     S_idle:
+       begin
+        if (req[0])
+         next_state = S1;
+    else if (req[1])
+         next_state=S2;
+    else if (req[2])
+         next_state=S3;
+    else if (req[3])
+         next_state=S4;
+    else
+         next_state=S_idle;
+       end // if req[0]
+  S1:
+       begin
+        if (req[1])
+         next_state = S2;
+    else if (req[2])
+         next_state=S3;
+    else if (req[3])
+         next_state=S4;
+    else if (req[0])
+         next_state=S1;
+    else
+         next_state=S_idle;
+       end // if req[0]
+  S2:
+       begin
+        if (req[2])
+         next_state = S3;
+    else if (req[3])
+         next_state=S4;
+    else if (req[0])
+         next_state=S1;
+    else if (req[1])
+         next_state=S2;
+    else
+         next_state=S_idle;
+       end // if req[0]
+   S3:
+       begin
+        if (req[3])
+         next_state = S4;
+    else if (req[0])
+         next_state=S1;
+    else if (req[1])
+         next_state=S2;
+    else if (req[2])
+         next_state=S3;
+    else
+         next_state=S_idle;
+       end // if req[0]
+  S4:
+       begin
+        if (req[0])
+         next_state = S1;
+    else if (req[1])
+         next_state=S2;
+    else if (req[2])
+         next_state=S3;
+    else if (req[3])
+         next_state=S4;
+    else
+         next_state=S_idle;
+       end // if req[0]
+     endcase
+    end  
+always @(state or next_state)
+  begin
+     case (state)
+       S1:begin grant=4'b0001; end
+       S2:begin grant=4'b0010; end
+       S3:begin grant=4'b0100; end
+       S4:begin grant=4'b1000; end
+       default: begin grant=4'b0000; end
+     endcase // case (state)
+  end
+ endmodule
+
